@@ -236,23 +236,20 @@ loadAssets().then(() => {
 });
 
 
-function saveScore(score) {
-  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  let playerName = prompt("Game Over! Enter your name:", "Player");
-  if (!playerName) playerName = "Player";
-
-  leaderboard.push({ name: playerName, score: score });
-  // Sort descending
-  leaderboard.sort((a, b) => b.score - a.score);
-  // Keep top 5
-  leaderboard = leaderboard.slice(0, 5);
-
-  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+async function saveScore(name, score) {
+  await fetch("/api/leaderboard", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, score })
+  });
 }
 
 
-function drawLeaderboard() {
-  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+async function drawLeaderboard() {
+  const res = await fetch("/api/leaderboard");
+  const leaderboard = await res.json();
+
   ctx.fillStyle = "white";
   ctx.font = "16px Arial";
   ctx.fillText("Leaderboard:", 10, 60);
@@ -261,3 +258,4 @@ function drawLeaderboard() {
     ctx.fillText(`${index + 1}. ${entry.name}: ${entry.score}`, 10, 80 + index * 20);
   });
 }
+
